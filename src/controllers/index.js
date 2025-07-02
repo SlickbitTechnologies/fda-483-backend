@@ -201,19 +201,19 @@ export const fetchTimeAnalysis = async (startDate, endDate) => {
             return 'No documents found in Firebase Firestore for the date range'
         }
         
-        console.log(`[API] Processing documents:`, documents.map(d => d.companyName));
+        // console.log(`[API] Processing documents:`, documents.map(d => d.companyName));
         
-        // Process documents with LLM
-        const llmStartTime = Date.now();
-        const result = await getDocumentResult(documents);
-        const llmEndTime = Date.now();
-        console.log(`[API] LLM processing completed in ${llmEndTime - llmStartTime}ms`);
+        // // Process documents with LLM
+        // const llmStartTime = Date.now();
+        // const result = await getDocumentResult(documents);
+        // const llmEndTime = Date.now();
+        // console.log(`[API] LLM processing completed in ${llmEndTime - llmStartTime}ms`);
 
-        const totalApiTime = Date.now() - apiStartTime;
-        console.log(`[API] Total /timeAnalysis API call completed in ${totalApiTime}ms`);
-        console.log(`[API] Breakdown: Firestore=${firestoreEndTime - firestoreStartTime}ms, LLM=${llmEndTime - llmStartTime}ms`);
-
-        return result;        
+        // const totalApiTime = Date.now() - apiStartTime;
+        // console.log(`[API] Total /timeAnalysis API call completed in ${totalApiTime}ms`);
+        // console.log(`[API] Breakdown: Firestore=${firestoreEndTime - firestoreStartTime}ms, LLM=${llmEndTime - llmStartTime}ms`);
+        console.log(documents, 'documentsdocumentsdocuments')
+        return documents;        
     } catch (error) {
         const totalTime = Date.now() - apiStartTime;
         console.error(`[API] Error in fetchTimeAnalysis after ${totalTime}ms:`, error);
@@ -227,8 +227,8 @@ export const fetchFeiNumbers = async(feiNumbers) => {
         if (documents.length === 0) {
             return { error: `No documents found in Firebase Firestore for the feiNumbers: ${feiNumbers}` };
         }
-        const result = await getDocumentResult(documents);
-        return result;
+        // const result = await getDocumentResult(documents);
+        return documents;
     } catch (error) {
         console.error('Error in fetchFeiNumbers:', error);
         return { error: 'Failed to process request', details: error.message };
@@ -239,7 +239,7 @@ export const fetchFirebaseData = async() => {
     try {
         const documents = await getFirebaseData();
         if (documents.length === 0) {
-            return { error: `No documents found in Firebase Firestore for the date range: ${startDate} to ${endDate}` };
+            return { error: `No documents found in Firebase Firestore` };
         }
         return documents;
     } catch (error) {

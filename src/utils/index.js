@@ -1,11 +1,20 @@
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
-import { downloadPDFFromURL } from './pdfExtractor.js';
+import { downloadPDFFromURL, getFirebaseData } from './pdfExtractor.js';
 
 const genAI = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export const askGemini = async (prompt, documents = []) => {
+    documents = await getFirebaseData()
+    console.log(documents, 'documentsdassocumentsdocuments')
+    prompt = `
+    - Extract the repeated_issues from the ${documents}
+    -List any findings explicitly noted as "repeated" or "previously cited.
+    -The repeated_issues should be a list of strings.
+    -Each document should be processed separately
+    -Extract the data from the firebaseUrl which is in the each document.
+    `
     const config = {
         // Ultra-aggressive performance optimizations for maximum speed
         generationConfig: {

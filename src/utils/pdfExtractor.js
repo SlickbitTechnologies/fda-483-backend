@@ -25,26 +25,44 @@ export const getDocumentsByDateRange = async (startDate, endDate) => {
         // Query Firestore collection
         const snapshot = await db.collection('fda-483-documents').get();
         
-        const documents = [];
+        let documents = [];
+        let seenKeys = new Set(); // Track unique combinations to prevent duplicates
+        
+        console.log(`Total documents in snapshot: ${snapshot.size}`);
         
         snapshot.forEach(doc => {
             const data = doc.data();
             const docDate = new Date(data.date).getTime();
             
-            // Check if document date falls within the range
-            if (docDate >= start && docDate <= end) {
-                documents.push({
-                    id: doc.id,
-                    companyName: data.name || 'Company',
-                    date: data.date,
-                    url: data.url,
-                    fileName: data.url.split('/').pop() // Extract filename from URL
-                });
+            // Create a unique key for deduplication
+            const uniqueKey = `${data.fei_number}_${data.date}_${data.name}`;
+            
+            console.log(`Processing document ID: ${doc.id}, Unique Key: ${uniqueKey}`);
+            
+            // Check if document date falls within the range and has observations
+            if (docDate >= start && docDate <= end && data.observations && data.observations.length > 0) {
+                // Only add if we haven't seen this unique combination before
+                if (!seenKeys.has(uniqueKey)) {
+                    seenKeys.add(uniqueKey);
+                    documents.push({
+                        id: doc.id,
+                        companyName: data.name || 'Company',
+                        date: data.date,
+                        url: data.firebaseUrl,
+                        feiNumber: data.fei_number,
+                        observations: data.observations,
+                    });
+                    console.log(`Added document: ${doc.id}`);
+                } else {
+                    console.log(`Skipped duplicate document: ${doc.id} (key: ${uniqueKey})`);
+                }
+            } else {
+                console.log(`Skipped document ${doc.id} - date range or observations check failed`);
             }
         });
         
-        console.log(`Found ${documents.length} documents in date range`);
-        console.log(documents, 'documentsjdsfhdjkh')
+        console.log(`Found ${documents.length} unique documents in date range`);
+        console.log(`Total duplicates skipped: ${snapshot.size - documents.length}`);
         return documents;
         
     } catch (error) {
@@ -58,18 +76,34 @@ export const getDocumentsByFeiNumbers = async (feiNumbers) => {
         console.log('Fetching documents by FEI numbers:', feiNumbers);
         const snapshot = await db.collection('fda-483-documents').where('fei_number', 'in', feiNumbers).get();
         const documents = [];
+        let seenKeys = new Set(); // Track unique combinations to prevent duplicates
+        
+        console.log(`Total documents in snapshot: ${snapshot.size}`);
+        
         snapshot.forEach(doc => {
             const data = doc.data();
-            documents.push({
-                id: doc.id,
-                companyName: data.name || 'Company',
-                date: data.date,
-                url: data.url,
-                fileName: data.url.split('/').pop() // Extract filename from URL
-            });
+            const uniqueKey = `${data.fei_number}_${data.date}_${data.name}`;
+            
+            console.log(`Processing document ID: ${doc.id}, Unique Key: ${uniqueKey}`);
+            
+            // Only add if we haven't seen this unique combination before
+            if (!seenKeys.has(uniqueKey)) {
+                seenKeys.add(uniqueKey);
+                documents.push({
+                    id: doc.id,
+                    companyName: data.name || 'Company',
+                    date: data.date,
+                    url: data.firebaseUrl,
+                    feiNumber: data.fei_number,
+                    observations: data.observations,
+                });
+                console.log(`Added document: ${doc.id}`);
+            } else {
+                console.log(`Skipped duplicate document: ${doc.id} (key: ${uniqueKey})`);
+            }
         });
-        console.log(`Found ${documents.length} documents by FEI numbers`);
-        console.log(documents, 'documentsdocumentsas')
+        console.log(`Found ${documents.length} unique documents by FEI numbers`);
+        console.log(`Total duplicates skipped: ${snapshot.size - documents.length}`);
         return documents;
     } catch (error) {
         console.error('Error fetching documents from Firestore:', error);
@@ -81,10 +115,27 @@ export const getFirebaseData = async() => {
     try {
         const snapshot = await db.collection('fda-483-documents').get();
         const documents = [];
+        let seenKeys = new Set(); // Track unique combinations to prevent duplicates
+        
+        console.log(`getFirebaseData: Total documents in snapshot: ${snapshot.size}`);
+        
         snapshot.forEach(doc => {
             const data = doc.data();
-            documents.push(data);
+            const uniqueKey = `${data.fei_number}_${data.date}_${data.name}`;
+            
+            console.log(`getFirebaseData: Processing document ID: ${doc.id}, Unique Key: ${uniqueKey}`);
+            
+            // Only add if we haven't seen this unique combination before
+            if (!seenKeys.has(uniqueKey)) {
+                seenKeys.add(uniqueKey);
+                documents.push(data);
+                console.log(`getFirebaseData: Added document: ${doc.id}`);
+            } else {
+                console.log(`getFirebaseData: Skipped duplicate document: ${doc.id} (key: ${uniqueKey})`);
+            }
         });
+        console.log(`getFirebaseData: Found ${documents.length} unique documents`);
+        console.log(`getFirebaseData: Total duplicates skipped: ${snapshot.size - documents.length}`);
         return documents;
     } catch (error) {
         console.error('Error fetching documents from Firestore:', error);
