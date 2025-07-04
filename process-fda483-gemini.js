@@ -174,6 +174,7 @@ async function main() {
          - Adverse Event Reporting Failures
       3. Extract MULTIPLE observations (at least 3-8 observations per document)
       4. Each observation should be a distinct, separate finding from the FDA 483 report
+      5. Each observation summary must be EXACTLY 40 words with 2-line summary focusing on compliance violations
       
       Return a JSON object with the following structure:
       {
@@ -182,7 +183,7 @@ async function main() {
         "cfrNumber": "The most relevant CFR section (e.g., §211.22, §211.100, etc.)",
         "observations": [
           {
-            "summary": "Brief description of the observation",
+            "summary": "EXACTLY 40 words with 2-line summary of compliance violations",
             "category": "ONE category from the predefined list above",
             "cfrNumber": "EXACTLY ONE CFR section (e.g., §211.22)"
           }
@@ -235,7 +236,7 @@ async function main() {
       
       const openaiOutput = result.choices[0].message.content;
       
-      // Create new object structure for fda-483-list collection
+      // Create new object structure for fda83docs collection
       const newDocument = {
         name: doc.name,
         date: doc.date,
@@ -350,7 +351,7 @@ async function main() {
       
       // Upload document to Firestore
       try {
-        await db.collection('fda-483-list').add(newDocument);
+        await db.collection('fda83docs').add(newDocument);
         console.log(`✅ Uploaded to Firestore: ${doc.name}`);
       } catch (uploadError) {
         console.log(`❌ Failed to upload ${doc.name} to Firestore: ${uploadError.message}`);
@@ -376,7 +377,7 @@ async function main() {
       // Continue with next document
     }
   } // close for loop
-  console.log(`\n✅ Processing complete! ${results.length} documents processed and uploaded to Firestore collection 'fda-483-list'.`);
+  console.log(`\n✅ Processing complete! ${results.length} documents processed and uploaded to Firestore collection 'fda83docs'.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); }); 
