@@ -23,7 +23,7 @@ export const getDocumentsByDateRange = async (startDate, endDate) => {
         const end = endDate;
         
         // Query Firestore collection
-        const snapshot = await db.collection('fda-483-documents').get();
+        const snapshot = await db.collection('fda-483-list').get();
         
         let documents = [];
         let seenKeys = new Set(); // Track unique combinations to prevent duplicates
@@ -51,6 +51,7 @@ export const getDocumentsByDateRange = async (startDate, endDate) => {
                         url: data.firebaseUrl,
                         feiNumber: data.fei_number,
                         observations: data.observations,
+                        repeatFinding: data.repeatFinding,
                     });
                     console.log(`Added document: ${doc.id}`);
                 } else {
@@ -74,7 +75,7 @@ export const getDocumentsByDateRange = async (startDate, endDate) => {
 export const getDocumentsByFeiNumbers = async (feiNumbers) => {
     try {
         console.log('Fetching documents by FEI numbers:', feiNumbers);
-        const snapshot = await db.collection('fda-483-documents').where('fei_number', 'in', feiNumbers).get();
+        const snapshot = await db.collection('fda-483-list').where('fei_number', 'in', feiNumbers).get();
         const documents = [];
         let seenKeys = new Set(); // Track unique combinations to prevent duplicates
         
@@ -113,7 +114,7 @@ export const getDocumentsByFeiNumbers = async (feiNumbers) => {
 
 export const getFirebaseData = async() => {
     try {
-        const snapshot = await db.collection('fda-483-documents').get();
+        const snapshot = await db.collection('fda-483-list').get();
         const documents = [];
         let seenKeys = new Set(); // Track unique combinations to prevent duplicates
         

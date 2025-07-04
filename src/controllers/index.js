@@ -4,40 +4,180 @@ import { getDocumentsByDateRange, downloadPDFFromURL, getDocumentsByFeiNumbers, 
 const getDocumentResult = async(documents) => {
 
     const categories = [
-        'Poor Documentation',
-        'Procedures Not Followed',
-        'Inadequate Investigations (CAPA)',
-        'Lack of Training',
-        'Facility & Equipment Issues',
-        'Validation Failures',
-        'Inadequate Testing',
-        'Improper Handling & Storage',
-        'Poor Record-Keeping',
-        'Adverse Event Reporting Failures'
+        {
+          label: 'Poor Documentation',
+          definition: 'This refers to the failure to have established written procedures (SOPs) for operations, or having procedures that are incomplete, not formally approved, or outdated.',
+          example: 'A company was cited for a lack of validated procedures for its production and process controls prior to releasing products for distribution.'
+        },
+        {
+          label: 'Procedures Not Followed',
+          definition: "This occurs when personnel do not adhere to the company's own established and written procedures during manufacturing, testing, or other operations.",
+          example: 'Investigators observed that operators documented in production records that equipment had been cleaned and sterilized, when in fact, these critical activities were never performed.'
+        },
+        {
+          label: 'Inadequate Investigations (CAPA)',
+          definition: 'This is the failure to thoroughly investigate deviations, complaints, or out-of-specification results to identify the true root cause and implement effective Corrective and Preventive Actions (CAPA) to prevent recurrence.',
+          example: 'A firm\'s investigation into a media fill failure that resulted in 124 contaminated units was deemed inadequate because it did not sufficiently explore the systemic reasons for the contamination.'
+        },
+        {
+          label: 'Lack of Training',
+          definition: 'This category addresses instances where personnel lack the necessary training, education, or experience to correctly perform their assigned duties in accordance with regulations.',
+          example: 'A company was cited for failing to provide sufficient training to its employees on critical quality control procedures and product testing methods.'
+        },
+        {
+          label: 'Facility & Equipment Issues',
+          definition: 'This pertains to deficiencies where the physical plant and equipment are not properly designed, maintained, cleaned, or operated in a way that prevents product contamination and ensures quality.',
+          example: 'An investigator observed liquid dripping from a ceiling pipe junction in a processing area directly above equipment that was labeled as "clean and ready for use".'
+        },
+        {
+          label: 'Validation Failures',
+          definition: 'This is the failure to establish with objective evidence that a process or piece of equipment will consistently produce a result or product meeting its predetermined specifications.',
+          example: 'A company relocated manufacturing equipment but failed to requalify it in the new location or update the associated process control documentation before resuming production.'
+        },
+        {
+          label: 'Inadequate Testing',
+          definition: 'This involves the failure to perform appropriate and scientifically sound testing on raw materials, in-process materials, or finished products to ensure they meet all quality specifications before release.',
+          example: 'A facility that handles human tissue failed to test a specimen from an anonymous oocyte donor for West Nile Virus during the required testing window.'
+        },
+        {
+          label: 'Improper Handling & Storage',
+          definition: 'This is the failure to handle, store, or label materials and products in a manner that prevents contamination, mix-ups, degradation, or other quality defects.',
+          example: 'In a food facility, investigators observed rodent gnaw holes in bags of raw ingredients and apparent rodent excreta pellets on and around pallets of food.'
+        },
+        {
+          label: 'Poor Record-Keeping',
+          definition: 'This deficiency involves records that are not established or maintained, are incomplete or inaccurate, or are not retained for the required period. This is a cornerstone of data integrity.',
+          example: "A firm's quality control incubators had no usage logbooks, creating significant gaps in equipment tracking and traceability."
+        },
+        {
+          label: 'Adverse Event Reporting Failures',
+          definition: 'This is the failure to properly and promptly report adverse events, product malfunctions, or other incidents to the FDA as required by regulation.',
+          example: 'A medical device manufacturer fails to submit a required report of a device malfunction that could cause or contribute to a death or serious injury.'
+        }
     ];
+      
 
     const cfrNumber = [
-       '§211.22',
-       '§211.25',
-       '§211.42',
-       '§211.63',
-       '§211.67',
-       '§211.68',
-       '§211.84',
-       '§211.100',
-       '§211.110',
-       '§211.113',
-       '§211.115',
-       '§211.122',
-       '§211.130',
-       '§211.160',
-       '§211.165',
-       '§211.166',
-       '§211.180',
-       '§211.192',
-       '§211.198',
-       '§211.208',
+        {
+          section: '§211.22',
+          title: 'Responsibilities of the Quality Control Unit'
+        },
+        {
+          section: '§211.25',
+          title: 'Personnel Qualifications'
+        },
+        {
+          section: '§211.42',
+          title: 'Design and Construction Features (Facility Design)'
+        },
+        {
+          section: '§211.63',
+          title: 'Equipment Design, Size, and Location'
+        },
+        {
+          section: '§211.67',
+          title: 'Equipment Cleaning and Maintenance'
+        },
+        {
+          section: '§211.68',
+          title: 'Automated, Mechanical, and Electronic Equipment'
+        },
+        {
+          section: '§211.84',
+          title: 'Testing and Approval of Incoming Components'
+        },
+        {
+          section: '§211.100',
+          title: 'Written Procedures (Production and Process Control)'
+        },
+        {
+          section: '§211.110',
+          title: 'Sampling and Testing of In-Process Materials'
+        },
+        {
+          section: '§211.113',
+          title: 'Control of Microbiological Contamination'
+        },
+        {
+          section: '§211.115',
+          title: 'Reprocessing'
+        },
+        {
+          section: '§211.122',
+          title: 'Labeling Control'
+        },
+        {
+          section: '§211.130',
+          title: 'Packaging and Labeling Operations'
+        },
+        {
+          section: '§211.160',
+          title: 'Laboratory Controls'
+        },
+        {
+          section: '§211.165',
+          title: 'Testing and Release for Distribution'
+        },
+        {
+          section: '§211.166',
+          title: 'Stability Testing'
+        },
+        {
+          section: '§211.180',
+          title: 'General Requirements (Records and Reports)'
+        },
+        {
+          section: '§211.192',
+          title: 'Production Record Review'
+        },
+        {
+          section: '§211.198',
+          title: 'Complaint Files'
+        },
+        {
+          section: '§211.208',
+          title: 'Recall Procedures'
+        },
+        {
+          section: '21 CFR Part 210',
+          title: 'GMP for Manufacturing, Processing, Packing, or Holding of Drugs (for APIs)'
+        },
+        {
+          section: 'ICH Q7',
+          title: 'GMP Guidance for Active Pharmaceutical Ingredients (recognized by FDA)'
+        },
+        {
+          section: '21 CFR Part 820',
+          title: 'Quality System Regulation (QSR) for Medical Devices'
+        },
+        {
+          section: '21 CFR Parts 600–680',
+          title: 'Biologics-Specific Requirements'
+        },
+        {
+          section: '21 CFR Part 11',
+          title: 'Electronic Records and Signatures (Data Integrity)'
+        }
+    ];
+
+    const observationExample = [
+        {
+            "summary": "Quality control unit failed to follow its responsibilities and procedures, specifically document control. Uncontrolled \"SAMPLE LOCATION CHART\" documents for stability samples were found lacking required stamping as \"UNCONTROLLED COPY\" and proper validation details per SOP.",
+            "category": "Documentation",
+            "cfrNumber": "§211.22"
+        },
+        {
+            "summary": "Reserve samples of drug products are not visually examined at least once a year for deterioration. Retain samples of Sarracenia Purpurea 0.17g/ml injection were not subjected to annual visual examination.",
+            "category": "Laboratory Controls",
+            "cfrNumber": "§211.170"
+        }
     ]
+
+    const repeatFindingExample = [
+        'Documentation control appears to be an industry-wide challenge',
+        'Cleaning validation protocols require standardization across the industry'
+    ]
+      
     
     const output = [
         {
@@ -48,8 +188,9 @@ const getDocumentResult = async(documents) => {
             inspectionDate: 'YYYY-MM-DD (date when 483 was issued)',
             summary: '2-line summary focusing on key compliance violations and critical issues',
             category: 'Poor Documentation',
-            repeatFinding: 'repeatFinding',
             cfrNumber: '§211.208',
+            observations: observationExample,
+            repeatFinding: repeatFindingExample
         }
     ]
 
@@ -65,7 +206,7 @@ const getDocumentResult = async(documents) => {
     - inspectionDate: YYYY-MM-DD (483 issue date)
     - summary: 2-line summary of compliance violations
     - category: One from: ${JSON.stringify(categories)}
-    - repeatFinding: "Yes" if repeat finding, "No" otherwise
+    - repeatFinding: Look for language indicating that a problem has occurred previously (e.g., “repeated,” “previously cited,” “same issue as prior inspection”)
     - cfrNumber: One from: ${JSON.stringify(cfrNumber)}
     
     Rules:

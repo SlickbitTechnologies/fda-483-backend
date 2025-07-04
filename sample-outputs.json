@@ -1,0 +1,130 @@
+[
+  {
+    "name": "East Orange VA Medical Center",
+    "date": "04/29/2025",
+    "pdfFileName": "East_Orange_VA_Medical_Center_3011110195.pdf",
+    "inspectionNumber": "3011110195",
+    "fei_number": 3011110195,
+    "firebaseUrl": "https://storage.googleapis.com/fda-483.firebasestorage.app/fda-483-documents/1751545688729_East_Orange_VA_Medical_Center_3011110195.pdf?GoogleAccessId=firebase-adminsdk-fbsvc%40fda-483.iam.gserviceaccount.com&Expires=1783081692&Signature=rQ14wn41uEp7405Mt4FujYBvxFqbxEWJbkbRGCPkWhbzvuOVQjEBN52cLoLUJPF8jOTPpIyMZysPeynQpCPbozpkgEbb61akBsbwuuo5bV4uy4jGO9gcPJDSslgtmVXxQ1RNPKuJLck0eSW860XLuYEFNkxJ7b6uNgNpr5P1OVdd8su8d1svLA9OeKQ6BjgATDw1UukQLEXD4%2FCgl8JNiVb8BZiKNtXL%2B1Qtg3Qd3lx8cIalAbNGwhvNkG0Id%2F%2Fc0NYQx%2FNYPi4%2FugEXgGG7pucKG441DAxm9GaJBOfISEbKFPmAIBN6ZRsZTH%2F8E0qE4phh%2F1M4jD7DVnds4rtQRQ%3D%3D",
+    "observations": [
+      {
+        "summary": "Production areas contained difficult-to-clean equipment and surfaces with observed rust and discoloration near sterile compounding areas.",
+        "category": "Facility & Equipment Issues",
+        "cfrNumber": "§211.22"
+      },
+      {
+        "summary": "Puddled liquid was found in a cabinet near the segregated compounding area (SCA), indicating poor housekeeping practices.",
+        "category": "Facility & Equipment Issues",
+        "cfrNumber": "§211.22"
+      },
+      {
+        "summary": "Sinks were located directly adjacent to the ISO 5 area, posing a potential contamination risk.",
+        "category": "Facility & Equipment Issues",
+        "cfrNumber": "§211.22"
+      },
+      {
+        "summary": "The SCA had a sink located near the ISO-5 compounding area and shared storage with materials used in the ISO-5 area, potentially leading to cross-contamination.",
+        "category": "Improper Handling & Storage",
+        "cfrNumber": "§211.22"
+      },
+      {
+        "summary": "Beta-lactam drugs were produced without adequate containment, segregation, and cleaning to prevent cross-contamination; lack of policies to deactivate these drugs after production.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.110"
+      }
+    ],
+    "repeatFinding": []
+  },
+  {
+    "name": "Apothecary Pharma LLC",
+    "date": "05/15/2025",
+    "pdfFileName": "Apothecary_Pharma_LLC_3032314463.pdf",
+    "inspectionNumber": "3032314463",
+    "fei_number": 3032314463,
+    "firebaseUrl": "https://storage.googleapis.com/fda-483.firebasestorage.app/fda-483-documents/1751545700148_Apothecary_Pharma_LLC_3032314463.pdf?GoogleAccessId=firebase-adminsdk-fbsvc%40fda-483.iam.gserviceaccount.com&Expires=1783081703&Signature=F4m7F3SnEn6CPqVqH7%2FeuTiVuQx4yBdz8G8xFB2P1XJUTCxrtm7Pqjo1Spbp0sZ7ahsBkIdPT%2FmLkjYAr%2B3cFvRWcw%2BiUAI%2F9lcD%2BqOpGuWvVRnxa1Y8pCy40fvcr1gL2yOeOr742CK3qoyvYpKFHsQyNhjns16wCBu%2FyNdHMYJHVGUo7Ay5VDksU3lsdkdv%2BM9GLiUbaMZWxhLS%2Fu2l6OgKfw9qoNJQETG%2FSpMacf2dj66q%2BaPyzmPwCN0dAC5UZX0v8%2Feqsh0%2FHXNyYyy3Pq7eXuzxsV4btlDPfvzX4dWrcICm9GxFXQk32juyGA4ltUOY2xr44AJsISu5jwCalw%3D%3D",
+    "observations": [
+      {
+        "summary": "Quality control unit responsibilities and procedures were not fully written and followed; several key documents were not reviewed, finalized or followed correctly. ",
+        "category": "Poor Documentation",
+        "cfrNumber": "§211.22"
+      },
+      {
+        "summary": "Protective apparel was not consistently worn to protect drug products from contamination during production.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.100"
+      },
+      {
+        "summary": "Aseptic processing areas were deficient; equipment used to control aseptic conditions (ISO 5 LFH) showed rust and damage. ",
+        "category": "Facility & Equipment Issues",
+        "cfrNumber": "§211.42"
+      },
+      {
+        "summary": "Aseptic processing areas lacked a sufficient system for cleaning and disinfecting the room and equipment.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.100"
+      },
+      {
+        "summary": "Operators failed to consistently follow aseptic procedures, such as disinfecting gloves and items before entering ISO 5, handling vials improperly, and exposing skin to the open environment.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.100"
+      },
+      {
+        "summary": "Procedures to prevent microbiological contamination lacked adequate validation of aseptic and sterilization processes, including insufficient smoke studies.",
+        "category": "Validation Failures",
+        "cfrNumber": "§211.160"
+      },
+      {
+        "summary": "Batch production and control records were incomplete, lacking in-process and laboratory control results; visual inspection documentation was inadequate.",
+        "category": "Poor Record-Keeping",
+        "cfrNumber": "§211.180"
+      },
+      {
+        "summary": "The facility failed to submit an initial product report to the FDA upon registration as a 503B outsourcing facility.",
+        "category": "Adverse Event Reporting Failures",
+        "cfrNumber": "§211.1"
+      }
+    ],
+    "repeatFinding": []
+  },
+  {
+    "name": "Sanofi-Aventis Deutschland GmbH",
+    "date": "01/16/2025",
+    "pdfFileName": "Sanofi-Aventis_Deutschland_GmbH_3003195501.pdf",
+    "inspectionNumber": "3003195501",
+    "fei_number": 3003195501,
+    "firebaseUrl": "https://storage.googleapis.com/fda-483.firebasestorage.app/fda-483-documents/1751545711687_Sanofi-Aventis_Deutschland_GmbH_3003195501.pdf?GoogleAccessId=firebase-adminsdk-fbsvc%40fda-483.iam.gserviceaccount.com&Expires=1783081715&Signature=qwcUfRjsXRdHRig7NzrRTJcqJVUyKu%2FphrKmi%2Fhu6Mfxqqq1j7XvC74HZU8dERksrSwY4CnWHdWUhrwH9febM7PRtbgLyh9Kd%2BPmMSn5KOP4kXMIfH%2BSnP0TQeeQrOzH%2F%2BNg76w8OUzndTCEIT9p9RTpdMcBikq63z4ZoqGN2w1OjNpDtLLwmlSUy8F%2Br4LxeIJI1X%2FRh%2Bk7mV9zd4yo2kuALrGI1DxTHmtKKCHa3WQBKp%2BBYevqr%2FA12B5Mhch7GfjzvyRO0t1A9IqMfUabCA46mwki09AYxZqd3KtQAp88vnOhQUocvS%2FN87oVlvRg1Io3v20NfzthfmWmklJ5dA%3D%3D",
+    "observations": [
+      {
+        "summary": "Environmental monitoring and microbiological surface sampling were deficient during aseptic filling operations.  Non-sterile gloves were used, and there was no assurance that secondary contact surfaces were adequately cleaned.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.115"
+      },
+      {
+        "summary": "Biological indicator (BI) placement during validation did not ensure that the BI reached all product contact surfaces, compromising sterility assurance.",
+        "category": "Inadequate Testing",
+        "cfrNumber": "§211.165"
+      },
+      {
+        "summary": "Pinholes in the [redacted] exposed the Grade A environment to potential contamination from the Grade D environment, jeopardizing sterility.",
+        "category": "Facility & Equipment Issues",
+        "cfrNumber": "§211.42"
+      },
+      {
+        "summary": "The DS manufacturing area lacked adequate controls for pressure, humidity, and environmental monitoring to ensure product quality.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.42"
+      },
+      {
+        "summary": "Cleaning procedures for product-contact equipment lacked assurance of effectiveness in preventing carryover and cross-contamination. Swab sampling wasn't performed during cleaning validation for multi-product and dedicated equipment or DS downstream manufacturing vessels.",
+        "category": "Inadequate Testing",
+        "cfrNumber": "§211.67"
+      },
+      {
+        "summary": "The use of [redacted] product from a less stringent generation process did not assure product quality for the final product.",
+        "category": "Procedures Not Followed",
+        "cfrNumber": "§211.100"
+      }
+    ],
+    "repeatFinding": []
+  }
+]
