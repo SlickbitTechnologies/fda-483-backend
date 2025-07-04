@@ -152,7 +152,7 @@ async function main() {
       
       // Initialize OpenAI
       const openai = new OpenAI({
-        apiKey: 'sk-KnLxnFSQ5fZBlm-Ep_SezdAlAdhM9RgaJNVqHDXr1KT3BlbkFJsex4z3ekUfqavn5DuQpUJhPopAx5fdVy8CiwEV72EA'
+        apiKey: process.env.OPENAI_API_KEY
       });
       
       // Create prompt for FDA 483 analysis
