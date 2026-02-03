@@ -1,6 +1,6 @@
 import express from 'express';
 import { fetchFeiNumbers, fetchFirebaseData, fetchTimeAnalysis } from '../controllers/index.js';
-import { chatWithPDF, healthCheck } from '../controllers/chatController.js';
+import { chatWithPDF } from '../controllers/chatController.js';
 
 const router = express.Router();
 
@@ -69,8 +69,6 @@ router.get('/firebaseData', async (req, res) => {
     res.json(result);
 });
 
-// Chat endpoints
 router.post('/chat', chatWithPDF);
-router.get('/chat/health', healthCheck);
 
 export default router;
