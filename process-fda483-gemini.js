@@ -3,13 +3,14 @@ import path from 'path';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
+import pdfParse from 'pdf-parse';
 import { bucket, db } from './src/utils/firebase.js';
 import pdf2pic from 'pdf2pic';
 
 // Load environment variables
 dotenv.config();
 
-const DATA_PATH = './originalData.json';
+const DATA_PATH = './latestData.json';
 
 // Function to extract repeat findings from text
 function extractRepeatFindingsFromText(text) {
@@ -55,7 +56,7 @@ async function downloadAndUploadPDF(url, fileName) {
   console.log(`📥 Downloaded: ${fileName}`);
   
   // Upload to Firebase Storage
-  const file = bucket.file(`fda-483-documents/${fileName}`);
+  const file = bucket.file(`latest-fda-483-documents/${fileName}`);
   let retries = 3;
   
   while (retries > 0) {
@@ -92,37 +93,37 @@ async function downloadAndUploadPDF(url, fileName) {
   }
 }
 
-async function convertPDFToImages(pdfPath) {
-  const options = {
-    density: 300,           // Output resolution
-    saveFilename: "page",   // Output filename
-    savePath: "./temp_images", // Output path
-    format: "png",          // Output format
-    width: 2480,            // Output width
-    height: 3508            // Output height
-  };
-  
-  const convert = pdf2pic.fromPath(pdfPath, options);
-  
-  // Create temp directory
-  try {
-    await fs.mkdir('./temp_images', { recursive: true });
-  } catch (error) {
-    // Directory might already exist
-  }
-  
-  // Get number of pages and convert them
-  const pageCount = await convert.bulk(-1);
-  console.log(`📄 Converting ${pageCount.length} pages to images...`);
-  
-  const imagePaths = [];
-  for (let i = 1; i <= pageCount.length; i++) {
-    const imagePath = `./temp_images/page.${i}.png`;
-    imagePaths.push(imagePath);
-  }
-  
-  return imagePaths;
-}
+// async function convertPDFToImages(pdfPath) {
+//   const options = {
+//     density: 300,           // Output resolution
+//     saveFilename: "page",   // Output filename
+//     savePath: "./temp_images", // Output path
+//     format: "png",          // Output format
+//     width: 2480,            // Output width
+//     height: 3508            // Output height
+//   };
+//   
+//   const convert = pdf2pic.fromPath(pdfPath, options);
+//   
+//   // Create temp directory
+//   try {
+//     await fs.mkdir('./temp_images', { recursive: true });
+//   } catch (error) {
+//     // Directory might already exist
+//   }
+//   
+//   // Get number of pages and convert them
+//   const pageCount = await convert.bulk(-1);
+//   console.log(`📄 Converting ${pageCount.length} pages to images...`);
+//   
+//   const imagePaths = [];
+//   for (let i = 1; i <= pageCount.length; i++) {
+//     const imagePath = `./temp_images/page.${i}.png`;
+//     imagePaths.push(imagePath);
+//   }
+//   
+//   return imagePaths;
+// }
 
 async function main() {
   await ensureUploadsDir();
@@ -147,8 +148,11 @@ async function main() {
       
       const { localPath, firebaseUrl: storageUrl } = await downloadAndUploadPDF(doc.firebaseUrl, fileName);
     
-      // Convert PDF to images
-      const imagePaths = await convertPDFToImages(localPath);
+      // Extract text from PDF
+      const pdfBuffer = await fs.readFile(localPath);
+      const pdfData = await pdfParse(pdfBuffer);
+      const pdfText = pdfData.text;
+      console.log(`📄 Extracted text from PDF: ${pdfText.length} characters`);
       
       // Initialize OpenAI
       const openai = new OpenAI({
@@ -157,7 +161,10 @@ async function main() {
       
       // Create prompt for FDA 483 analysis
       const prompt = `
-      Analyze this FDA 483 inspection report PDF and extract key information in JSON format.
+      Analyze this FDA 483 inspection report text extracted from PDF and extract key information in JSON format.
+      
+      PDF TEXT CONTENT:
+      ${pdfText}
       
       IMPORTANT REQUIREMENTS:
       1. Each observation must have EXACTLY ONE CFR number (e.g., "§211.22" or "§211.100")
@@ -203,22 +210,10 @@ async function main() {
       If you find ANY indication of repeated issues, list them as separate items in the repeatFinding array. Be comprehensive and don't miss any repeated findings.
       `;
       
-      // Prepare content array with prompt and all images
+      // Prepare content with extracted PDF text
       const content = [
         { type: "text", text: prompt }
       ];
-      
-      // Add all images to content array
-      for (const imagePath of imagePaths) {
-        const imageBuffer = await fs.readFile(imagePath);
-        const base64Image = imageBuffer.toString('base64');
-        content.push({
-          type: "image_url",
-          image_url: {
-            url: `data:image/png;base64,${base64Image}`
-          }
-        });
-      }
       
       // Create OpenAI API call
       const result = await openai.chat.completions.create({
@@ -230,7 +225,6 @@ async function main() {
           }
         ],
         max_tokens: 1500,
-        temperature: 0.0,
         response_format: { type: "json_object" }
       });
       
@@ -351,7 +345,7 @@ async function main() {
       
       // Upload document to Firestore
       try {
-        await db.collection('fda83docs').add(newDocument);
+        await db.collection('latestfda483').add(newDocument);
         console.log(`✅ Uploaded to Firestore: ${doc.name}`);
       } catch (uploadError) {
         console.log(`❌ Failed to upload ${doc.name} to Firestore: ${uploadError.message}`);
@@ -359,25 +353,26 @@ async function main() {
       
       results.push(newDocument);
       
-      // Clean up temp images
-      try {
-        for (const imagePath of imagePaths) {
-          await fs.unlink(imagePath);
-        }
-        await fs.rmdir('./temp_images');
-      } catch (cleanupError) {
-        console.log(`⚠️  Could not clean up temp images: ${cleanupError.message}`);
-      }
+      // // Clean up temp images
+      // try {
+      //   for (const imagePath of imagePaths) {
+      //     await fs.unlink(imagePath);
+      //   }
+      //   await fs.rmdir('./temp_images');
+      // } catch (cleanupError) {
+      //   console.log(`⚠️  Could not clean up temp images: ${cleanupError.message}`);
+      // }
       
       // Wait 2 seconds after each document
       console.log(`⏸️  Waiting 2 seconds before next document...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (error) {
+      console.error(error)
       console.log(`❌ Error processing ${doc.name}: ${error.message}`);
       // Continue with next document
     }
   } // close for loop
-  console.log(`\n✅ Processing complete! ${results.length} documents processed and uploaded to Firestore collection 'fda83docs'.`);
+  console.log(`\n✅ Processing complete! ${results.length} documents processed and uploaded to Firestore collection 'latestfda483'.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); }); 

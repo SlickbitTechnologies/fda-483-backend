@@ -353,7 +353,6 @@ export const fetchTimeAnalysis = async (startDate, endDate) => {
         // const totalApiTime = Date.now() - apiStartTime;
         // console.log(`[API] Total /timeAnalysis API call completed in ${totalApiTime}ms`);
         // console.log(`[API] Breakdown: Firestore=${firestoreEndTime - firestoreStartTime}ms, LLM=${llmEndTime - llmStartTime}ms`);
-        console.log(documents, 'documentsdocumentsdocuments')
         return documents;        
     } catch (error) {
         const totalTime = Date.now() - apiStartTime;
