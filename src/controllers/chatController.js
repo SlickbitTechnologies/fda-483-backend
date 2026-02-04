@@ -1,7 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { bucket } from "../utils/firebase.js";
 import dotenv from "dotenv";
-import fs from "fs";
 import path from "path";
 import os from "os";
 
@@ -11,7 +10,7 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_API_KEY,
 });
 
-const STORE_DISPLAY_NAME = "FDA_Docs_Store";
+const STORE_DISPLAY_NAME = "FDA_Docs_Store1";
 let cachedStoreName = null;
 
 async function getOrCreateStore() {
@@ -37,46 +36,67 @@ async function getOrCreateStore() {
 async function syncFirebaseToStore(folderPath) {
   const storeName = await getOrCreateStore();
   const [files] = await bucket.getFiles({ prefix: folderPath });
-  const pdfFiles = files.filter(f => f.name.toLowerCase().endsWith(".pdf") && !f.name.endsWith("/"));
-
+  const pdfFiles = files.filter(
+    (f) => f.name.toLowerCase().endsWith(".pdf") && !f.name.endsWith("/"),
+  );
 
   for (const file of pdfFiles) {
-    const tempPath = path.join(os.tmpdir(), path.basename(file?.name));
+    const tempPath = path.join(os.tmpdir(), path.basename(file.name));
     await file.download({ destination: tempPath });
 
     try {
-      console.log(`Indexing: ${file?.name}`);
-      
+      console.log(`Indexing with custom chunking: ${file.name}`);
+
       const operation = await ai.fileSearchStores.uploadToFileSearchStore({
         file: tempPath,
         fileSearchStoreName: storeName,
-        config: { displayName: path.basename(file?.name) }
+        config: {
+          displayName: path.basename(file.name),
+          chunkingConfig: {
+            whiteSpaceConfig: {
+              maxTokensPerChunk: 400,
+              maxOverlapTokens: 80,
+            },
+          },
+        },
       });
 
-      if (!operation || !operation.name) {
-        throw new Error("Upload did not return a valid operation name.");
+      const operationName = operation?.name;
+      if (!operationName) {
+        console.error(
+          "Full Operation Response:",
+          JSON.stringify(operation, null, 2),
+        );
+        throw new Error(
+          "Upload did not return a valid operation name. Check console for response body.",
+        );
       }
 
-      console.log(`Operation started: ${operation.name}`);
+      console.log(`Operation started: ${operationName}`);
 
       while (true) {
-        const status = await ai.operations.get({ name: operation.name });
+        const status = await ai.operations.get({ name: operationName });
+
         if (status.done) {
           if (status.error) {
-            console.error(`Indexing failed for ${file?.name}:`, status.error.message);
+            console.error(
+              `Indexing failed for ${file.name}:`,
+              status.error.message,
+            );
           } else {
-            console.log(`Successfully indexed: ${file?.name}`);
+            console.log(`Successfully indexed: ${file.name}`);
           }
           break;
         }
 
         process.stdout.write(".");
-        await new Promise(r => setTimeout(r, 4000));
+        await new Promise((r) => setTimeout(r, 4000));
       }
-    } catch (error) {
-      console.error(`Error processing ${file?.name}:`, error.message);
-    } finally {
-      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    } catch (innerError) {
+      console.error(
+        `Error in upload loop for ${file.name}:`,
+        innerError.message,
+      );
     }
   }
 }
@@ -84,31 +104,40 @@ async function syncFirebaseToStore(folderPath) {
 async function queryStore(question) {
   const storeName = await getOrCreateStore();
 
-  const listDocs = await ai.fileSearchStores.documents.list({
-    parent: storeName
-  });
+  console.log("DEBUG: Querying with Store Name:", storeName);
 
-  for await (const doc of listDocs) {
-    console.log(`Document in store: ${doc.displayName}`);
+  if (!storeName || typeof storeName !== "string") {
+    throw new Error(
+      "CRITICAL: storeName is missing. Cannot initialize File Search tool.",
+    );
   }
-  if (!storeName) throw new Error("Store name could not be resolved.");
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: [{ role: 'user', parts: [{ text: question }] }],
-    config: {
-      tools: [
-        {
-          fileSearch: {
-            fileSearchStoreNames: [storeName]
-          }
-        }
-      ],
-      systemInstruction: "You are an FDA expert. Strictly use the provided File Search store to retrieve facts. Cite filenames in your answer."
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [{ role: "user", parts: [{ text: question }] }],
+      config: {
+        tools: [
+          {
+            fileSearch: {
+              fileSearchStoreNames: [storeName],
+            },
+          },
+        ],
+        systemInstruction:
+          "You are an FDA expert. Strictly use the provided File Search store to retrieve facts.",
+      },
+    });
+
+    return response.text;
+  } catch (err) {
+    if (err.message.includes("tool_type")) {
+      console.error(
+        "TOOL ERROR: The API did not recognize the fileSearch configuration.",
+      );
     }
-  });
-
-  return response.text;
+    throw err;
+  }
 }
 
 export const chatWithPDF = async (req, res) => {
