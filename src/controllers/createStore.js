@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const ai = new GoogleGenAI({
-  apiKey: 'AIzaSyAtdCx4sdH5FLzNu1z8Kk_zVTbPh97mfuw'
+  apiKey: process.env.GOOGLE_API_KEY
 });
 
 async function createStore() {
