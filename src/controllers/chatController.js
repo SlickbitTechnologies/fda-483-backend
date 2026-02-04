@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai"; // New Unified SDK
+import { GoogleGenAI } from "@google/genai";
 import { bucket } from "../utils/firebase.js";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_API_KEY,
 });
 
-const STORE_DISPLAY_NAME = "FDA_Regulatory_Docs_Store";
+const STORE_DISPLAY_NAME = "FDA_Docs_Store";
 let cachedStoreName = null;
 
 async function getOrCreateStore() {
@@ -39,37 +39,62 @@ async function syncFirebaseToStore(folderPath) {
   const [files] = await bucket.getFiles({ prefix: folderPath });
   const pdfFiles = files.filter(f => f.name.toLowerCase().endsWith(".pdf") && !f.name.endsWith("/"));
 
-  console.log(`Syncing ${pdfFiles.length} files...`);
 
   for (const file of pdfFiles) {
-    const tempPath = path.join(os.tmpdir(), path.basename(file.name));
+    const tempPath = path.join(os.tmpdir(), path.basename(file?.name));
     await file.download({ destination: tempPath });
 
     try {
-      console.log(`Indexing: ${file.name}`);
-      let operation = await ai.fileSearchStores.uploadToFileSearchStore({
+      console.log(`Indexing: ${file?.name}`);
+      
+      const operation = await ai.fileSearchStores.uploadToFileSearchStore({
         file: tempPath,
         fileSearchStoreName: storeName,
-        config: { displayName: path.basename(file.name) }
+        config: { displayName: path.basename(file?.name) }
       });
 
-      // Poll until the operation is done (indexing completes)
-      while (!operation.done) {
-        await new Promise(r => setTimeout(r, 3000));
-        operation = await ai.operations.get({ name: operation.name });
+      if (!operation || !operation.name) {
+        throw new Error("Upload did not return a valid operation name.");
       }
+
+      console.log(`Operation started: ${operation.name}`);
+
+      while (true) {
+        const status = await ai.operations.get({ name: operation.name });
+        if (status.done) {
+          if (status.error) {
+            console.error(`Indexing failed for ${file?.name}:`, status.error.message);
+          } else {
+            console.log(`Successfully indexed: ${file?.name}`);
+          }
+          break;
+        }
+
+        process.stdout.write(".");
+        await new Promise(r => setTimeout(r, 4000));
+      }
+    } catch (error) {
+      console.error(`Error processing ${file?.name}:`, error.message);
     } finally {
       if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
     }
   }
-  console.log("Sync Complete.");
 }
 
 async function queryStore(question) {
   const storeName = await getOrCreateStore();
 
+  const listDocs = await ai.fileSearchStores.documents.list({
+    parent: storeName
+  });
+
+  for await (const doc of listDocs) {
+    console.log(`Document in store: ${doc.displayName}`);
+  }
+  if (!storeName) throw new Error("Store name could not be resolved.");
+
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview", // Use 2.0 or 1.5 Flash
+    model: "gemini-3-flash-preview",
     contents: [{ role: 'user', parts: [{ text: question }] }],
     config: {
       tools: [
@@ -78,25 +103,29 @@ async function queryStore(question) {
             fileSearchStoreNames: [storeName]
           }
         }
-      ]
+      ],
+      systemInstruction: "You are an FDA expert. Strictly use the provided File Search store to retrieve facts. Cite filenames in your answer."
     }
   });
-  console.log(response, 'response_')
+
   return response.text;
 }
 
 export const chatWithPDF = async (req, res) => {
   try {
     const { message } = req.body;
-    
+    if (!message) return res.status(400).json({ error: "Message is required" });
     const answer = await queryStore(message);
-    console.log(answer, 'answer_answer')
+
     res.json({
       success: true,
       response: answer
     });
   } catch (error) {
-    console.error("FileSearch Error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Gemini System Error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 };
